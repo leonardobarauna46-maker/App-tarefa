@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
     private long pendingTask=-1, pendingMember=-1;
     private Database db;
     private LinearLayout root, content;
-    private final int green=Color.rgb(25,110,74), dark=Color.rgb(28,42,37);
+    private final int green=Color.rgb(41,215,245), dark=Color.rgb(237,244,255), surface=Color.rgb(18,27,54), purple=Color.rgb(159,91,255);
 
     @Override public void onCreate(Bundle state) { super.onCreate(state); db=new Database(this); showHome(); }
     private int dp(int n) { return (int)(n*getResources().getDisplayMetrics().density+0.5f); }
@@ -39,16 +39,16 @@ public class MainActivity extends Activity {
     private void pad(View v,int x,int y) { v.setPadding(dp(x),dp(y),dp(x),dp(y)); }
     private void gap(LinearLayout l,int h) { View v=new View(this);l.addView(v,new LinearLayout.LayoutParams(1,dp(h))); }
     private void start(String title) {
-        ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true);scroll.setBackgroundColor(Color.rgb(245,248,246));
+        ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true);scroll.setBackgroundColor(Color.rgb(7,12,29));
         root=vertical();pad(root,18,22);scroll.addView(root);setContentView(scroll);
-        TextView header=text("🏠  "+title,26,true);root.addView(header);gap(root,14);
+        TextView header=text("✦  "+title,26,true);header.setTextColor(green);root.addView(header);gap(root,18);
         LinearLayout nav=new LinearLayout(this);nav.setOrientation(LinearLayout.HORIZONTAL);
-        String[] labels={"Tarefas","Ranking","Histórico","Família"};
-        for(int i=0;i<labels.length;i++){ final int index=i; Button b=new Button(this);b.setText(labels[i]);b.setTextSize(11);b.setAllCaps(false);nav.addView(b,new LinearLayout.LayoutParams(0,dp(48),1));b.setOnClickListener(v->{if(index==0)showHome();else if(index==1)showRanking();else if(index==2)showHistory();else showFamily();}); }
+        String[] labels={"⌂ Início","🏆 Ranking","◷ Histórico","♧ Família"};
+        for(int i=0;i<labels.length;i++){ final int index=i; Button b=new Button(this);b.setText(labels[i]);b.setTextSize(11);b.setAllCaps(false);b.setTextColor(Color.WHITE);b.setBackground(bg(surface,14));nav.addView(b,new LinearLayout.LayoutParams(0,dp(48),1));b.setOnClickListener(v->{if(index==0)showHome();else if(index==1)showRanking();else if(index==2)showHistory();else showFamily();}); }
         root.addView(nav);gap(root,12);content=vertical();root.addView(content);
     }
-    private void card(LinearLayout parent,View view) { LinearLayout box=vertical();pad(box,14,13);box.setBackground(bg(Color.WHITE,14));box.addView(view);parent.addView(box,new LinearLayout.LayoutParams(-1,-2));gap(parent,10); }
-    private Button button(String title,Runnable action) { Button b=new Button(this);b.setText(title);b.setAllCaps(false);b.setOnClickListener(v->action.run());return b; }
+    private void card(LinearLayout parent,View view) { LinearLayout box=vertical();pad(box,14,13);GradientDrawable panel=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{surface,Color.rgb(29,19,65)});panel.setCornerRadius(dp(18));panel.setStroke(dp(1),Color.rgb(59,92,155));box.setBackground(panel);box.addView(view);parent.addView(box,new LinearLayout.LayoutParams(-1,-2));gap(parent,10); }
+    private Button button(String title,Runnable action) { Button b=new Button(this);b.setText(title);b.setAllCaps(false);b.setTextColor(Color.WHITE);GradientDrawable neon=new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{Color.rgb(8,117,185),Color.rgb(111,48,197)});neon.setCornerRadius(dp(15));b.setBackground(neon);b.setOnClickListener(v->action.run());return b; }
     private void notifyUser(String s) { Toast.makeText(this,s,Toast.LENGTH_SHORT).show(); }
     private ImageView photo(String path,int size) {
         ImageView image=new ImageView(this);
@@ -79,10 +79,10 @@ public class MainActivity extends Activity {
     private void captureMember(long id){pendingMember=id;launchCamera(CAMERA_MEMBER);}
     private void showHome() {
         start("Tarefas & Pontos");
-        TextView summary=text("Hoje: "+db.todayCount()+" tarefa(s) concluída(s) • "+db.todayPoints()+" pontos",16,true);summary.setTextColor(green);card(content,summary);
+        TextView summary=text("✦  OLÁ, FAMÍLIA!\n\nHoje: "+db.todayCount()+" tarefa(s) concluída(s)\n⭐ "+db.todayPoints()+" pontos conquistados",19,true);summary.setTextColor(green);card(content,summary);
         content.addView(button("+ Cadastrar familiar",this::newMember));
         content.addView(button("+ Criar tarefa",this::newTask));gap(content,16);
-        content.addView(text("Tarefas diárias",21,true));gap(content,10);
+        content.addView(text("✦  Missões do dia",21,true));gap(content,10);
         boolean has=false;
         try(Cursor c=db.tasks()) {
             while(c.moveToNext()) {
@@ -117,7 +117,7 @@ public class MainActivity extends Activity {
         }).show();
     }
     private void showFamily(){
-        start("Fotos da família");
+        start("♧ Nossa família");
         content.addView(button("+ Cadastrar familiar",this::newMember));
         try(Cursor c=db.members()){
             while(c.moveToNext()){
@@ -129,7 +129,7 @@ public class MainActivity extends Activity {
         }
     }
     private void showRanking() {
-        start("Ranking da família");
+        start("🏆 Ranking da família");
         content.addView(text("⭐ Pontuação total",20,true));gap(content,8);
         int place=1;boolean has=false;
         try(Cursor c=db.ranking()){while(c.moveToNext()){has=true;LinearLayout item=vertical();item.addView(text(place+"º  "+c.getString(0)+"   ⭐ "+c.getInt(1)+" pontos",19,true));
@@ -147,7 +147,7 @@ public class MainActivity extends Activity {
         card(content,text("Semana: "+monday+" a "+sunday+". O total geral preserva pontos de tarefas excluídas.",13,false));
     }
     private void showHistory() {
-        start("Histórico");boolean has=false;
+        start("◷ Histórico");boolean has=false;
         try(Cursor c=db.history()){while(c.moveToNext()){has=true;LinearLayout item=vertical();item.addView(text(c.getString(0)+"  •  "+c.getString(3)+"\n"+c.getString(1)+"   +"+c.getInt(2)+" pontos",16,false));
             if(!c.isNull(4))item.addView(photo(c.getString(4),160));card(content,item);}}
         if(!has)card(content,text("Ainda não há tarefas concluídas.",15,false));

@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.tarefasepontos'
+    namespace 'br.com.familia.tarefasepontos'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.tarefasepontos'
+        applicationId 'br.com.familia.tarefasepontos'
         minSdk 23
         targetSdk 28
         versionCode 1
